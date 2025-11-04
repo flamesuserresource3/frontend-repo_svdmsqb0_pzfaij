@@ -2,7 +2,9 @@ import React, { useMemo, useState } from 'react';
 import Header from './components/Header';
 import LoginCard from './components/LoginCard';
 import JobsBoard from './components/JobsBoard';
-import JobDetail from './components/JobDetail';
+import JobDetailPage from './components/JobDetailPage';
+import ArticlesPage from './components/ArticlesPage';
+import RequestPage from './components/RequestPage';
 import { PlusCircle } from 'lucide-react';
 
 export default function App() {
@@ -37,19 +39,21 @@ export default function App() {
     },
   ]);
 
-  const [selected, setSelected] = useState(null);
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'job' | 'articles' | 'requests'
+  const [currentJob, setCurrentJob] = useState(null);
   const [showNewJob, setShowNewJob] = useState(false);
   const [newJob, setNewJob] = useState({ codice: '', descrizione: '' });
 
   const handleLogin = (u) => setUser(u);
   const handleLogout = () => {
     setUser(null);
-    setSelected(null);
+    setCurrentJob(null);
+    setView('dashboard');
   };
 
   const updateJob = (updated) => {
     setJobs((prev) => prev.map((j) => (j.id === updated.id ? updated : j)));
-    setSelected(updated);
+    setCurrentJob(updated);
   };
 
   const createJob = (e) => {
@@ -68,6 +72,12 @@ export default function App() {
     setShowNewJob(false);
   };
 
+  const addArticleToCurrent = (art) => {
+    if (!currentJob) return;
+    const updated = { ...currentJob, articoli: [...currentJob.articoli, art] };
+    updateJob(updated);
+  };
+
   const gradient = useMemo(
     () => (
       <>
@@ -78,35 +88,82 @@ export default function App() {
     []
   );
 
+  const renderContent = () => {
+    if (!user) {
+      return (
+        <div className="pt-10">
+          <LoginCard onLogin={handleLogin} />
+        </div>
+      );
+    }
+
+    if (view === 'dashboard') {
+      return (
+        <div className="space-y-8">
+          <section className="flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white">Le tue commesse</h2>
+              <p className="text-white/70">Seleziona una commessa per vedere i dettagli o aggiornarne lo stato.</p>
+            </div>
+          </section>
+
+          <JobsBoard
+            jobs={jobs}
+            onUpdate={(j) => updateJob(j)}
+            onOpen={(job) => {
+              setCurrentJob(job);
+              setView('job');
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (view === 'job' && currentJob) {
+      return (
+        <JobDetailPage
+          job={currentJob}
+          onBack={() => setView('dashboard')}
+          onUpdate={updateJob}
+          onOpenArticles={() => setView('articles')}
+          onOpenRequests={() => setView('requests')}
+        />
+      );
+    }
+
+    if (view === 'articles' && currentJob) {
+      return (
+        <ArticlesPage
+          job={currentJob}
+          onBack={() => setView('job')}
+          onAdd={() => addArticleToCurrent({ nome: 'Articolo demo', quantita: 1 })}
+        />
+      );
+    }
+
+    if (view === 'requests' && currentJob) {
+      return (
+        <RequestPage
+          job={currentJob}
+          onBack={() => setView('job')}
+          onRequest={(a) => addArticleToCurrent(a)}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Aesthetic gradient background for glass effect */}
       {gradient}
 
       <div className="relative z-10">
         <Header user={user} onLogout={handleLogout} onNewJob={() => setShowNewJob(true)} />
 
-        <main className="mx-auto max-w-7xl px-6 pb-20">
-          {!user ? (
-            <div className="pt-10">
-              <LoginCard onLogin={handleLogin} />
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <section className="flex items-end justify-between">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-extrabold text-white">Le tue commesse</h2>
-                  <p className="text-white/70">Seleziona una commessa per vedere i dettagli o aggiornarne lo stato.</p>
-                </div>
-              </section>
-
-              <JobsBoard jobs={jobs} onOpen={(job) => setSelected(job)} />
-            </div>
-          )}
-        </main>
+        <main className="mx-auto max-w-7xl px-6 pb-20">{renderContent()}</main>
       </div>
 
-      {/* Nuova Commessa Modal */}
       {showNewJob && (
         <div className="fixed inset-0 z-30 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowNewJob(false)} />
@@ -141,11 +198,6 @@ export default function App() {
             </form>
           </div>
         </div>
-      )}
-
-      {/* Dettaglio Commessa */}
-      {selected && (
-        <JobDetail job={selected} onClose={() => setSelected(null)} onUpdate={updateJob} />
       )}
     </div>
   );
