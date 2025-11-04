@@ -5,6 +5,7 @@ import JobsBoard from './components/JobsBoard';
 import JobDetailPage from './components/JobDetailPage';
 import ArticlesPage from './components/ArticlesPage';
 import RequestPage from './components/RequestPage';
+import Hero3D from './components/Hero3D';
 import { PlusCircle } from 'lucide-react';
 
 export default function App() {
@@ -78,28 +79,20 @@ export default function App() {
     updateJob(updated);
   };
 
-  // Awwwards-grade immersive background (aurora + soft grid + vignette)
+  // Immersive background with aurora, subtle grid and vignette
   const backgroundFX = useMemo(
     () => (
       <>
-        {/* Deep backdrop */}
         <div className="pointer-events-none absolute inset-0 bg-[#0a0b10]" />
-
-        {/* Aurora layers */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -inset-24 blur-3xl opacity-70 animate-pulse-slow" style={{
             background:
-              'radial-gradient(60% 50% at 20% 20%, rgba(99,102,241,0.35), transparent 60%),\
-               radial-gradient(50% 45% at 80% 10%, rgba(16,185,129,0.35), transparent 60%),\
-               radial-gradient(60% 55% at 50% 80%, rgba(236,72,153,0.35), transparent 60%)',
+              'radial-gradient(60% 50% at 20% 20%, rgba(99,102,241,0.35), transparent 60%),\\\n               radial-gradient(50% 45% at 80% 10%, rgba(16,185,129,0.35), transparent 60%),\\\n               radial-gradient(60% 55% at 50% 80%, rgba(236,72,153,0.35), transparent 60%)',
           }} />
-          {/* Subtle moving light sweep */}
           <div className="pointer-events-none absolute inset-0 opacity-30 [mask-image:radial-gradient(60%_60%_at_50%_50%,black,transparent)]">
             <div className="absolute -inset-40 bg-[conic-gradient(from_180deg_at_50%_50%,_#fff_0%,_transparent_40%,_#fff_70%,_transparent_100%)] blur-[100px] animate-spin-slower" />
           </div>
         </div>
-
-        {/* Soft grid */}
         <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
           <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -110,8 +103,6 @@ export default function App() {
             <rect width="100%" height="100%" fill="url(#grid)" />
           </svg>
         </div>
-
-        {/* Vignette */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_10%,transparent,rgba(0,0,0,0.4))]" />
       </>
     ),
@@ -121,9 +112,12 @@ export default function App() {
   const renderContent = () => {
     if (!user) {
       return (
-        <div className="pt-10">
-          <LoginCard onLogin={handleLogin} />
-        </div>
+        <>
+          <Hero3D />
+          <div className="pt-2 pb-16">
+            <LoginCard onLogin={handleLogin} />
+          </div>
+        </>
       );
     }
 
@@ -192,7 +186,6 @@ export default function App() {
     <div className="relative min-h-screen overflow-hidden antialiased selection:bg-indigo-400/30 selection:text-white">
       {backgroundFX}
 
-      {/* Foreground wrapper */}
       <div className="relative z-10">
         <Header user={user} onLogout={handleLogout} onNewJob={() => setShowNewJob(true)} />
 
@@ -201,7 +194,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* Create New Job modal */}
       {showNewJob && (
         <div className="fixed inset-0 z-30 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowNewJob(false)} />
@@ -237,7 +229,6 @@ export default function App() {
               </button>
             </form>
 
-            {/* Glow edge */}
             <div className="pointer-events-none absolute -inset-px rounded-3xl [mask:linear-gradient(white,transparent)] opacity-60">
               <div className="absolute inset-0 rounded-3xl blur-2xl bg-gradient-to-tr from-indigo-400/30 via-emerald-300/20 to-pink-300/20" />
             </div>
@@ -245,7 +236,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Small utility animations */}
       <style>{`
         @keyframes spin-slower { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .animate-spin-slower { animation: spin-slower 20s linear infinite; }
