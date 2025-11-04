@@ -1,0 +1,72 @@
+import React from 'react';
+import { Clock, PlayCircle, PauseCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+
+const statusStyles = {
+  pronta: 'from-emerald-400/20 to-emerald-300/10 border-emerald-300/30',
+  in_corso: 'from-blue-400/20 to-blue-300/10 border-blue-300/30',
+  in_pausa: 'from-amber-400/20 to-amber-300/10 border-amber-300/30',
+  completata: 'from-violet-400/20 to-violet-300/10 border-violet-300/30',
+};
+
+const StatusBadge = ({ status }) => {
+  const labelMap = {
+    pronta: 'Pronta',
+    in_corso: 'In corso',
+    in_pausa: 'In pausa',
+    completata: 'Completata',
+  };
+  return (
+    <span className="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/20 px-3 py-1 text-sm text-white">
+      <Clock className="h-4 w-4" /> {labelMap[status]}
+    </span>
+  );
+};
+
+export default function JobsBoard({ jobs, onOpen }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {jobs.map((job) => (
+        <div
+          key={job.id}
+          className={`rounded-3xl bg-gradient-to-br ${statusStyles[job.status]} border backdrop-blur-xl p-6 text-white shadow-xl`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-extrabold">{job.codice}</h3>
+            <StatusBadge status={job.status} />
+          </div>
+          <p className="text-white/80 text-lg mb-4 line-clamp-2">{job.descrizione}</p>
+
+          <div className="flex items-center gap-3 text-white/80 mb-6">
+            <span className="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/20 px-3 py-2 text-sm">
+              Articoli: <strong className="text-white">{job.articoli.length}</strong>
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/20 px-3 py-2 text-sm">
+              Operatore: <strong className="text-white">{job.operatore}</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex gap-3">
+              <button className="inline-flex items-center gap-2 rounded-2xl px-4 py-3 bg-white/10 border border-white/20 hover:bg-white/20 active:scale-95 transition">
+                <PlayCircle className="h-6 w-6" /> Avvia
+              </button>
+              <button className="inline-flex items-center gap-2 rounded-2xl px-4 py-3 bg-white/10 border border-white/20 hover:bg-white/20 active:scale-95 transition">
+                <PauseCircle className="h-6 w-6" /> Pausa
+              </button>
+              <button className="inline-flex items-center gap-2 rounded-2xl px-4 py-3 bg-white/10 border border-white/20 hover:bg-white/20 active:scale-95 transition">
+                <CheckCircle2 className="h-6 w-6" /> Termina
+              </button>
+            </div>
+
+            <button
+              onClick={() => onOpen(job)}
+              className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-lg font-semibold bg-white/20 hover:bg-white/30 border border-white/30 active:scale-95 transition"
+            >
+              Dettagli <ArrowRight className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
